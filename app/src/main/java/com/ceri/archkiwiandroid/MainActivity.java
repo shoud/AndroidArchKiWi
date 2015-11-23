@@ -16,7 +16,8 @@ import android.view.MenuItem;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
+import com.zerokol.views.JoystickView;
+import com.zerokol.views.JoystickView.OnJoystickMoveListener;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
@@ -27,6 +28,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     private Timer timer;
     private TimerTask task;
     private boolean checking;
+    private JoystickView joystickMotor, joystickCamera;
 
     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
@@ -87,12 +89,100 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         view = (SurfaceView) findViewById(R.id.surfaceView);
         holder = view.getHolder();
         holder.addCallback(this);
+
+        //Récupération des Joysticks
+        joystickMotor = (JoystickView) findViewById(R.id.joystickMotor);
+        joystickMotor.setOnJoystickMoveListener(new OnJoystickMoveListener() {
+            @Override
+            public void onValueChanged(int angle, int power, int direction) {
+                switch (direction) {
+                    case JoystickView.FRONT:
+                        //Avancer
+                        break;
+
+                    case JoystickView.FRONT_RIGHT:
+                        //Avancer ver la droite
+                        break;
+
+                    case JoystickView.RIGHT:
+                        //Aller à droite
+                        break;
+
+                    case JoystickView.RIGHT_BOTTOM:
+                        //Reculer à droite
+                        break;
+
+                    case JoystickView.BOTTOM:
+                        //Reculer
+                        break;
+
+                    case JoystickView.BOTTOM_LEFT:
+                        //Reculer à gauche
+                        break;
+
+                    case JoystickView.LEFT:
+                        //Aller à gauche
+                        break;
+
+                    case JoystickView.LEFT_FRONT:
+                        //Avancer ver la gauche
+                        break;
+
+                    default:
+                        //Ne bouge pas
+                }
+            }
+        }, JoystickView.DEFAULT_LOOP_INTERVAL);
+
+        //Récupération des Joysticks
+        joystickCamera = (JoystickView) findViewById(R.id.joystickCamera);
+        joystickCamera.setOnJoystickMoveListener(new OnJoystickMoveListener() {
+            @Override
+            public void onValueChanged(int angle, int power, int direction) {
+                switch (direction) {
+                    case JoystickView.FRONT:
+                        //regarder vers le haut
+                        break;
+
+                    case JoystickView.FRONT_RIGHT:
+                        //Regarder en haut à droite
+                        break;
+
+                    case JoystickView.RIGHT:
+                        //Regarder à droite
+                        break;
+
+                    case JoystickView.RIGHT_BOTTOM:
+                        //Regarder en bas à droite
+                        break;
+
+                    case JoystickView.BOTTOM:
+                        //Regarder en bas
+                        break;
+
+                    case JoystickView.BOTTOM_LEFT:
+                        //Regarder en bas à gauche
+                        break;
+
+                    case JoystickView.LEFT:
+                        //Regarder à gauche
+                        break;
+
+                    case JoystickView.LEFT_FRONT:
+                        //Regarder en haut à gauche
+                        break;
+
+                    default:
+                        //Ne bouge pas
+                }
+            }
+        }, JoystickView.DEFAULT_LOOP_INTERVAL);
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
         try {
             // Create MediaPlayer with the Rapsberry Camera Module streamin URI
-            mp = MediaPlayer.create(this, Uri.parse("rtsp://192.168.1.14:8554/"));
+            mp = MediaPlayer.create(this, Uri.parse("http://83.155.96.120:8090"));
             // Set display with the surface holder
             mp.setDisplay(holder);
             // Buffer and start video
