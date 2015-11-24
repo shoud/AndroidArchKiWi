@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.zerokol.views.JoystickView;
@@ -17,6 +19,7 @@ import com.zerokol.views.JoystickView.OnJoystickMoveListener;
 
 public class MainActivity extends Activity {
 
+    private Wifi wifi;
     private WifiManager wifiManager;
     private Timer timer;
     private TimerTask task;
@@ -62,10 +65,29 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        //Les paramètre wifi du ArchKiwi
+        wifi = new Wifi();
         // Get WifiManager
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+        wifiManager.addNetwork(wifi.getWifiConfiguration());
+        /*List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+        for( WifiConfiguration wifiConfiguration : list )
+        {
+            if (wifiConfiguration.SSID != null && wifiConfiguration.SSID.equals("\"" + wifi.getNetworkSSID() + "\"")) {
+                wifiManager.disconnect();
+                wifiManager.enableNetwork(wifiConfiguration.networkId, true);
+                wifiManager.reconnect();
+                try
+                {
+                    Thread.sleep(10000);
+                }catch (Exception e)
+                {
 
+                }
+
+                break;
+            }
+        }*/
         // Prepare a scheduled timer to check Wifi state periodically
         checking = false;
         task = new TimerTask() {
@@ -102,7 +124,6 @@ public class MainActivity extends Activity {
             @Override
             public void onValueChanged(int angle, int power, int direction)
             {
-                Log.e("power = ", Integer.toString(power));
                 socketClient.send("M;"+angle+";"+power+";");
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
