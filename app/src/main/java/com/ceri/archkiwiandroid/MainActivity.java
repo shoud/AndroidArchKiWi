@@ -68,7 +68,8 @@ public class MainActivity extends Activity {
 
         // Prepare a scheduled timer to check Wifi state periodically
         checking = false;
-        task = new TimerTask() {
+        task = new TimerTask()
+        {
             @Override
             public void run() {
                 runOnUiThread(new Runnable() { // AlertDialog must be run on UI thread
