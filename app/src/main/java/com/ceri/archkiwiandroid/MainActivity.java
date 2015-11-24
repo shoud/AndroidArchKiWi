@@ -84,7 +84,6 @@ public class MainActivity extends Activity {
         timer.schedule(task, 0, 5000); // Check Wifi state every 5 seconds
 
         //Initialisation de la socket
-
         new Thread(new Runnable(){
             @Override
             public void run() {
@@ -102,8 +101,9 @@ public class MainActivity extends Activity {
             @Override
             public void onValueChanged(int angle, int power, int direction)
             {
-                Log.e("power = ", Integer.toString(power));
-                socketClient.send("M;"+angle+";"+power+";");
+                String s = "M;"+angle+";"+power+";";
+                Log.e("Joystick", s);
+                socketClient.send(s);
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
 
