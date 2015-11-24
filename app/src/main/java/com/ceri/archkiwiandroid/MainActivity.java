@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -22,6 +23,10 @@ public class MainActivity extends Activity {
     private boolean checking;
     private JoystickView joystickMotor, joystickCamera;
     private MjpegView mv;
+    private SocketClient socketClient;
+    private String hostname = "192.168.2.254";
+    private String portStream = "8080";
+    private int portSocket = 20000;
 
     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
@@ -78,47 +83,27 @@ public class MainActivity extends Activity {
         timer = new Timer();
         timer.schedule(task, 0, 5000); // Check Wifi state every 5 seconds
 
+        //Initialisation de la socket
+
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    socketClient = new SocketClient(hostname,portSocket);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
         //Récupération des Joysticks
         joystickMotor = (JoystickView) findViewById(R.id.joystickMotor);
         joystickMotor.setOnJoystickMoveListener(new OnJoystickMoveListener() {
             @Override
-            public void onValueChanged(int angle, int power, int direction) {
-                switch (direction) {
-                    case JoystickView.FRONT:
-                        //Avancer
-                        break;
-
-                    case JoystickView.FRONT_RIGHT:
-                        //Avancer ver la droite
-                        break;
-
-                    case JoystickView.RIGHT:
-                        //Aller à droite
-                        break;
-
-                    case JoystickView.RIGHT_BOTTOM:
-                        //Reculer à droite
-                        break;
-
-                    case JoystickView.BOTTOM:
-                        //Reculer
-                        break;
-
-                    case JoystickView.BOTTOM_LEFT:
-                        //Reculer à gauche
-                        break;
-
-                    case JoystickView.LEFT:
-                        //Aller à gauche
-                        break;
-
-                    case JoystickView.LEFT_FRONT:
-                        //Avancer ver la gauche
-                        break;
-
-                    default:
-                        //Ne bouge pas
-                }
+            public void onValueChanged(int angle, int power, int direction)
+            {
+                Log.e("power = ", Integer.toString(power));
+                socketClient.send("M;"+angle+";"+power+";");
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
 
@@ -126,43 +111,9 @@ public class MainActivity extends Activity {
         joystickCamera = (JoystickView) findViewById(R.id.joystickCamera);
         joystickCamera.setOnJoystickMoveListener(new OnJoystickMoveListener() {
             @Override
-            public void onValueChanged(int angle, int power, int direction) {
-                switch (direction) {
-                    case JoystickView.FRONT:
-                        //regarder vers le haut
-                        break;
-
-                    case JoystickView.FRONT_RIGHT:
-                        //Regarder en haut à droite
-                        break;
-
-                    case JoystickView.RIGHT:
-                        //Regarder à droite
-                        break;
-
-                    case JoystickView.RIGHT_BOTTOM:
-                        //Regarder en bas à droite
-                        break;
-
-                    case JoystickView.BOTTOM:
-                        //Regarder en bas
-                        break;
-
-                    case JoystickView.BOTTOM_LEFT:
-                        //Regarder en bas à gauche
-                        break;
-
-                    case JoystickView.LEFT:
-                        //Regarder à gauche
-                        break;
-
-                    case JoystickView.LEFT_FRONT:
-                        //Regarder en haut à gauche
-                        break;
-
-                    default:
-                        //Ne bouge pas
-                }
+            public void onValueChanged(int angle, int power, int direction)
+            {
+                socketClient.send("C;"+angle+";"+power+";");
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
 
@@ -173,13 +124,20 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 try {
-                    MjpegInputStream stream = MjpegInputStream.read("http://192.168.1.14:8080/?action=stream");
+                    MjpegInputStream stream = MjpegInputStream.read("http://"+ hostname +":" + portStream+"/?action=stream");
                     mv.setSource(stream);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        socketClient.destroy();
     }
 
     @Override
