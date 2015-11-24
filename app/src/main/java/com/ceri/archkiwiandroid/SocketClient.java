@@ -42,6 +42,8 @@ public class SocketClient
             outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
             bufferedWriter = new BufferedWriter(outputStreamWriter);
             bufferedWriter.write(command);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
         }catch (Exception e)
         {
             Log.e("Erreur write Socket = ",e.toString());
@@ -52,7 +54,7 @@ public class SocketClient
     {
         try
         {
-            bufferedWriter.close();
+            socket.close();
         }catch (Exception e)
         {
             Log.e("Erreur close Socket = ",e.toString());
