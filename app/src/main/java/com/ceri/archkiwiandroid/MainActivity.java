@@ -4,13 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,16 +14,14 @@ import java.util.TimerTask;
 import com.zerokol.views.JoystickView;
 import com.zerokol.views.JoystickView.OnJoystickMoveListener;
 
-public class MainActivity extends Activity implements SurfaceHolder.Callback {
+public class MainActivity extends Activity {
 
     private WifiManager wifiManager;
-    private MediaPlayer mp;
-    private SurfaceView view;
-    private SurfaceHolder holder;
     private Timer timer;
     private TimerTask task;
     private boolean checking;
     private JoystickView joystickMotor, joystickCamera;
+    private MjpegView mv;
 
     DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
@@ -84,11 +77,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         };
         timer = new Timer();
         timer.schedule(task, 0, 5000); // Check Wifi state every 5 seconds
-
-        // Get SurfaceView from layout, and get holder which will display video
-        view = (SurfaceView) findViewById(R.id.surfaceView);
-        holder = view.getHolder();
-        holder.addCallback(this);
 
         //Récupération des Joysticks
         joystickMotor = (JoystickView) findViewById(R.id.joystickMotor);
@@ -177,49 +165,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                 }
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
-    }
 
-    public void surfaceCreated(SurfaceHolder holder) {
-        try {
-            // Create MediaPlayer with the Rapsberry Camera Module streamin URI
-            mp = MediaPlayer.create(this, Uri.parse("http://83.155.96.120:8090"));
-            // Set display with the surface holder
-            mp.setDisplay(holder);
-            // Buffer and start video
-            mp.prepare();
-            mp.start();
-        } catch (Exception e) {
-            Log.e("Player", e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        releaseMediaPlayer();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        releaseMediaPlayer();
-    }
-
-    private void releaseMediaPlayer() {
-        if (mp != null) {
-            mp.release();
-            mp = null;
-        }
+        mv = (MjpegView) findViewById(R.id.mjpegView);
+        mv.setDisplayMode(MjpegView.SIZE_BEST_FIT);
+        mv.showFps(false);
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    MjpegInputStream stream = MjpegInputStream.read("http://192.168.1.14:8080/?action=stream");
+                    mv.setSource(stream);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
