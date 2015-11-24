@@ -25,40 +25,20 @@ public class SocketClient
     {
         this.hostName = hostName;
         this.portNumber = portNumber;
-        try
-        {
-            socket = new Socket(hostName,portNumber);
-        }catch (Exception e)
-        {
-            Log.e("Erreur create Socket = ",e.toString());
-        }
-
     }
 
     public void send(String command)
     {
         try
         {
+            socket = new Socket(hostName,portNumber);
             outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
             bufferedWriter = new BufferedWriter(outputStreamWriter);
             bufferedWriter.write(command);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
+            bufferedWriter.close();
         }catch (Exception e)
         {
             Log.e("Erreur write Socket = ",e.toString());
         }
-    }
-
-    public void destroy()
-    {
-        try
-        {
-            socket.close();
-        }catch (Exception e)
-        {
-            Log.e("Erreur close Socket = ",e.toString());
-        }
-
     }
 }

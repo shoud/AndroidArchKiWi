@@ -102,9 +102,14 @@ public class MainActivity extends Activity {
             @Override
             public void onValueChanged(int angle, int power, int direction)
             {
-                String str = "M;"+angle+";"+power+";";
-                Log.e("JoystickMotor", str);
-                socketClient.send(str);
+                final String str = "M;"+angle+";"+power+";";
+                new Thread(new Runnable(){
+                    @Override
+                    public void run() {
+                        socketClient.send(str);
+                    }
+                }).start();
+
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
 
@@ -114,9 +119,13 @@ public class MainActivity extends Activity {
             @Override
             public void onValueChanged(int angle, int power, int direction)
             {
-                String str = "C;"+angle+";"+power+";";
-                Log.e("JoystickCamera", str);
-                socketClient.send(str);
+                final String str = "C;"+angle+";"+power+";";
+                new Thread(new Runnable(){
+                    @Override
+                    public void run() {
+                        socketClient.send(str);
+                    }
+                }).start();
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
 
@@ -134,14 +143,6 @@ public class MainActivity extends Activity {
                 }
             }
         }).start();
-    }
-
-    @Override
-    public void onDestroy()
-    {
-        super.onDestroy();
-        if (socketClient != null)
-            socketClient.destroy();
     }
 
     @Override
