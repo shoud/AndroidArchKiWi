@@ -2,16 +2,10 @@ package com.ceri.archkiwiandroid;
 
 import android.util.Log;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 
-/**
- * Created by uapv1301804 on 24/11/15.
- */
 public class SocketClient
 {
     private String hostName;
@@ -21,7 +15,7 @@ public class SocketClient
     private BufferedWriter bufferedWriter;
 
 
-    public SocketClient(String hostName,int portNumber)
+    public SocketClient(String hostName, int portNumber)
     {
         this.hostName = hostName;
         this.portNumber = portNumber;

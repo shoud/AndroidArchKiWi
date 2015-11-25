@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/AndroidArchKiWi.iml" filepath="$PROJECT_DIR$/AndroidArchKiWi.iml" />
       <module fileurl="file://$PROJECT_DIR$/ArchKiWiAndroid.iml" filepath="$PROJECT_DIR$/ArchKiWiAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
