@@ -5,23 +5,21 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import com.zerokol.views.JoystickView;
 import com.zerokol.views.JoystickView.OnJoystickMoveListener;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MainActivity extends Activity {
 
+    private final String hostname = "192.168.2.254";
+    private final String portStream = "8080";
+    private final int portSocket = 20000;
     private Wifi wifi;
-    private Timer timer;
-    private TimerTask task;
     private boolean running;
-    private JoystickView joystickMotor, joystickCamera;
     private MjpegView mv;
     private SocketClient socketClient;
-    private String hostname = "192.168.2.254";
-    private String portStream = "8080";
-    private int portSocket = 20000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +30,7 @@ public class MainActivity extends Activity {
         wifi = new Wifi(this);
 
         // Prepare a scheduled timer to check Wifi state periodically
-        task = new TimerTask()
-        {
+        TimerTask task = new TimerTask() {
             @Override
             public void run() {
                 runOnUiThread(new Runnable() { // AlertDialog must be run on UI thread
@@ -51,14 +48,14 @@ public class MainActivity extends Activity {
                 });
             }
         };
-        timer = new Timer();
+        Timer timer = new Timer();
         timer.schedule(task, 0, 1000); // Check Wifi state every second
     }
 
     private void start() {
         running = true;
         //Initialisation de la socket
-        new Thread(new Runnable(){
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -70,13 +67,12 @@ public class MainActivity extends Activity {
         }).start();
 
         //Récupération des Joysticks
-        joystickMotor = (JoystickView) findViewById(R.id.joystickMotor);
+        JoystickView joystickMotor = (JoystickView) findViewById(R.id.joystickMotor);
         joystickMotor.setOnJoystickMoveListener(new OnJoystickMoveListener() {
             @Override
-            public void onValueChanged(int angle, int power, int direction)
-            {
-                final String str = "M;"+angle+";"+power+";";
-                new Thread(new Runnable(){
+            public void onValueChanged(int angle, int power, int direction) {
+                final String str = "M;" + angle + ";" + power + ";";
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
                         socketClient.send(str);
@@ -87,13 +83,12 @@ public class MainActivity extends Activity {
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
 
         //Récupération des Joysticks
-        joystickCamera = (JoystickView) findViewById(R.id.joystickCamera);
+        JoystickView joystickCamera = (JoystickView) findViewById(R.id.joystickCamera);
         joystickCamera.setOnJoystickMoveListener(new OnJoystickMoveListener() {
             @Override
-            public void onValueChanged(int angle, int power, int direction)
-            {
-                final String str = "C;"+angle+";"+power+";";
-                new Thread(new Runnable(){
+            public void onValueChanged(int angle, int power, int direction) {
+                final String str = "C;" + angle + ";" + power + ";";
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
                         socketClient.send(str);
@@ -105,7 +100,7 @@ public class MainActivity extends Activity {
         mv = (MjpegView) findViewById(R.id.mjpegView);
         mv.setDisplayMode(MjpegView.SIZE_BEST_FIT);
         mv.showFps(false);
-        new Thread(new Runnable(){
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 try {

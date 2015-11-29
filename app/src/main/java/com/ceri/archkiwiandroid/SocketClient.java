@@ -6,33 +6,24 @@ import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-public class SocketClient
-{
-    private String hostName;
-    private int portNumber;
-    private Socket socket;
-    private OutputStreamWriter outputStreamWriter;
-    private BufferedWriter bufferedWriter;
+class SocketClient {
+    private final String hostName;
+    private final int portNumber;
 
-
-    public SocketClient(String hostName, int portNumber)
-    {
+    public SocketClient(String hostName, int portNumber) {
         this.hostName = hostName;
         this.portNumber = portNumber;
     }
 
-    public void send(String command)
-    {
-        try
-        {
-            socket = new Socket(hostName,portNumber);
-            outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
-            bufferedWriter = new BufferedWriter(outputStreamWriter);
+    public void send(String command) {
+        try {
+            Socket socket = new Socket(hostName, portNumber);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
+            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
             bufferedWriter.write(command);
             bufferedWriter.close();
-        }catch (Exception e)
-        {
-            Log.e("Erreur write Socket = ",e.toString());
+        } catch (Exception e) {
+            Log.e("Socket", e.toString());
         }
     }
 }

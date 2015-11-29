@@ -8,19 +8,17 @@ import android.content.DialogInterface;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 
-public class Wifi
-{
-    private Activity activity;
-    private String networkSSID = "ArchKiWifi";
-    private WifiManager wifiManager;
-    private WifiConfiguration wifiConfiguration;
+class Wifi {
+    private final Activity activity;
+    private final String networkSSID = "ArchKiWifi";
+    private final WifiManager wifiManager;
     private boolean waitingEnable, waitingConnect, checking;
     private ProgressDialog dialog;
 
-    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+    private final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            switch (which){
+            switch (which) {
                 case DialogInterface.BUTTON_POSITIVE: // Enable Wifi
                     if (!wifiManager.isWifiEnabled()) {
                         enable();
@@ -37,8 +35,7 @@ public class Wifi
         }
     };
 
-    public Wifi(Activity activity)
-    {
+    public Wifi(Activity activity) {
         waitingEnable = false;
         checking = false;
         this.activity = activity;
@@ -56,7 +53,7 @@ public class Wifi
         wifiManager.setWifiEnabled(true);
     }
 
-    public void connect() {
+    private void connect() {
         waitingConnect = true;
         dialog = new ProgressDialog(activity);
         dialog.setTitle("Connecting...");
@@ -67,10 +64,10 @@ public class Wifi
         int networkId = getConfig();
         if (networkId == -1)
             networkId = addConfig();
-        boolean b = wifiManager.enableNetwork(networkId, true);
+        wifiManager.enableNetwork(networkId, true);
     }
 
-    public int getConfig() {
+    private int getConfig() {
         for (WifiConfiguration config : wifiManager.getConfiguredNetworks()) {
             if (config.SSID.equals("\"ArchKiWifi\""))
                 return config.networkId;
@@ -78,8 +75,8 @@ public class Wifi
         return -1;
     }
 
-    public int addConfig() {
-        wifiConfiguration = new WifiConfiguration();
+    private int addConfig() {
+        WifiConfiguration wifiConfiguration = new WifiConfiguration();
         wifiConfiguration.SSID = "\"" + networkSSID + "\"";
         wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         wifiConfiguration.status = WifiConfiguration.Status.ENABLED;
