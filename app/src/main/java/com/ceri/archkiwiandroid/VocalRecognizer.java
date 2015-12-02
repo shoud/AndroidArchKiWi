@@ -1,15 +1,11 @@
 package com.ceri.archkiwiandroid;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
