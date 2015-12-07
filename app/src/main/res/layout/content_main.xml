@@ -11,7 +11,7 @@
             android:layout_height="fill_parent"
             android:id="@+id/mjpegView" />
 
-        <com.zerokol.views.JoystickView
+        <com.ceri.archkiwiandroid.JoystickView
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:id="@+id/joystickMotor"
@@ -19,11 +19,22 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true" />
 
-        <com.zerokol.views.JoystickView
+        <com.ceri.archkiwiandroid.JoystickView
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:id="@+id/joystickCamera"
             android:alpha="0.1"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="-- m/s"
+            android:id="@+id/speedText"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:textColor="#ffffff"
+            android:textStyle="bold" />
 </RelativeLayout>

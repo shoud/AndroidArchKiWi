@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import com.zerokol.views.JoystickView;
-import com.zerokol.views.JoystickView.OnJoystickMoveListener;
+import android.widget.TextView;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,6 +18,7 @@ public class MainActivity extends Activity {
     private boolean running;
     private MjpegView mv;
     private SocketClient socketClient;
+    private long lastSpeedRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +51,17 @@ public class MainActivity extends Activity {
         timer.schedule(task, 0, 1000); // Check Wifi state every second
     }
 
+    private void getSpeed() {
+        long now = System.currentTimeMillis();
+        String response;
+        if (now - lastSpeedRequest > 1000) {
+            response = socketClient.send("E;PLSGIVINFO");
+            lastSpeedRequest = now;
+            TextView speedView = (TextView) findViewById(R.id.speedText);
+            speedView.setText(response + " m/s");
+        }
+    }
+
     private void start() {
         running = true;
         //Initialisation de la socket
@@ -68,7 +78,7 @@ public class MainActivity extends Activity {
 
         //Récupération des Joysticks
         JoystickView joystickMotor = (JoystickView) findViewById(R.id.joystickMotor);
-        joystickMotor.setOnJoystickMoveListener(new OnJoystickMoveListener() {
+        joystickMotor.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
             @Override
             public void onValueChanged(int angle, int power, int direction) {
                 final String str = "M;" + angle + ";" + power + ";";
@@ -76,6 +86,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void run() {
                         socketClient.send(str);
+                        getSpeed();
                     }
                 }).start();
 
@@ -84,7 +95,7 @@ public class MainActivity extends Activity {
 
         //Récupération des Joysticks
         JoystickView joystickCamera = (JoystickView) findViewById(R.id.joystickCamera);
-        joystickCamera.setOnJoystickMoveListener(new OnJoystickMoveListener() {
+        joystickCamera.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
             @Override
             public void onValueChanged(int angle, int power, int direction) {
                 final String str = "C;" + angle + ";" + power + ";";
