@@ -1,11 +1,16 @@
 package com.ceri.archkiwiandroid;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -19,6 +24,7 @@ public class MainActivity extends Activity {
     private MjpegView mv;
     private SocketClient socketClient;
     private long lastSpeedRequest;
+    private VocalRecognizer vocalRecognizer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,16 +55,22 @@ public class MainActivity extends Activity {
         };
         Timer timer = new Timer();
         timer.schedule(task, 0, 1000); // Check Wifi state every second
+        vocalRecognizer = new VocalRecognizer(this);
     }
 
     private void getSpeed() {
         long now = System.currentTimeMillis();
-        String response;
+        final String response;
         if (now - lastSpeedRequest > 1000) {
             response = socketClient.send("E;PLSGIVINFO");
             lastSpeedRequest = now;
-            TextView speedView = (TextView) findViewById(R.id.speedText);
-            speedView.setText(response + " m/s");
+            final TextView speedView = (TextView) findViewById(R.id.speedText);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    speedView.setText(response + " m/s");
+                }
+            });
         }
     }
 
@@ -144,5 +156,27 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode,
+                                    int resultCode,
+                                    Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0 && resultCode == RESULT_OK) {
+            ArrayList<String> results;
+            results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            Toast.makeText(this, results.get(0), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Méthode d'utiliser la reconaissance vocal
+     * @param controlView
+     */
+    public void btVocalRecognizer(View controlView)
+    {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        startActivityForResult(intent, 0);
     }
 }

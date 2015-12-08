@@ -1,11 +1,15 @@
 package com.ceri.archkiwiandroid;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,7 +34,7 @@ public class VocalRecognizer
      */
     public void enregistrement() {
         //Lance un enregistrement
-        asr.startListening(intent);
+        mainActivity.startActivityForResult(intent, 0);
     }
 
     /**
