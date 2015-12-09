@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 class Wifi {
     private final Activity activity;
     private final String networkSSID = "ArchKiWifi";
+    private final String networkPW = "archkiwi";
     private final WifiManager wifiManager;
     private boolean waitingEnable, waitingConnect, checking;
     private ProgressDialog dialog;
@@ -78,7 +79,8 @@ class Wifi {
     private int addConfig() {
         WifiConfiguration wifiConfiguration = new WifiConfiguration();
         wifiConfiguration.SSID = "\"" + networkSSID + "\"";
-        wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+        wifiConfiguration.preSharedKey = "\"" + networkPW + "\"";
+        wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
         wifiConfiguration.status = WifiConfiguration.Status.ENABLED;
         return wifiManager.addNetwork(wifiConfiguration);
     }
