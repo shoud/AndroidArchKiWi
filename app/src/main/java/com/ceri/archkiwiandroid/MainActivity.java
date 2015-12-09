@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
             }
         }).start();
 
-        //Récupération des Joysticks
+        //Récupération du Joysticks du control
         JoystickView joystickMotor = (JoystickView) findViewById(R.id.joystickMotor);
         joystickMotor.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
             @Override
@@ -105,11 +105,15 @@ public class MainActivity extends Activity {
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
 
-        //Récupération des Joysticks
+        //Récupération du de la camera
         JoystickView joystickCamera = (JoystickView) findViewById(R.id.joystickCamera);
         joystickCamera.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
             @Override
             public void onValueChanged(int angle, int power, int direction) {
+                if(angle < 0)
+                    angle = 0;
+                else if(angle >= 0)
+                    angle = 180;
                 final String str = "C;" + angle + ";" + power + ";";
                 new Thread(new Runnable() {
                     @Override
