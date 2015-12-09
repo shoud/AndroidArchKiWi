@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +26,9 @@ public class MainActivity extends Activity {
     private SocketClient socketClient;
     private long lastSpeedRequest;
     private VocalRecognizer vocalRecognizer;
+    public static final int GAUCHE = 0, HAUT = 0;
+    public static final int DROITE = 180, BAS = 180;
+    public static final int STOP = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,11 +114,44 @@ public class MainActivity extends Activity {
         joystickCamera.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
             @Override
             public void onValueChanged(int angle, int power, int direction) {
-                if(angle < 0)
-                    angle = 0;
-                else if(angle >= 0)
-                    angle = 180;
-                final String str = "C;" + angle + ";" + power + ";";
+                final String str;
+                switch (direction) {
+                    case JoystickView.FRONT:
+                        str = "C;" + STOP + ";" + HAUT + ";";
+                        break;
+
+                    case JoystickView.FRONT_RIGHT:
+                        str = "C;" + DROITE + ";" + HAUT + ";";
+                        break;
+
+                    case JoystickView.RIGHT:
+                        str = "C;" + DROITE + ";" + STOP + ";";
+                        break;
+
+                    case JoystickView.RIGHT_BOTTOM:
+                        str = "C;" + DROITE + ";" + BAS + ";";
+                        break;
+
+                    case JoystickView.BOTTOM:
+                        str = "C;" + STOP + ";" + BAS + ";";
+                        break;
+
+                    case JoystickView.BOTTOM_LEFT:
+                        str = "C;" + GAUCHE + ";" + BAS + ";";
+                        break;
+
+                    case JoystickView.LEFT:
+                        str = "C;" + GAUCHE + ";" + STOP + ";";
+                        break;
+
+                    case JoystickView.LEFT_FRONT:
+                        str = "C;" + GAUCHE + ";" + HAUT + ";";
+                        break;
+
+                    default:
+                        str = "C;" + STOP + ";" + STOP + ";";
+                }
+                Log.e("CMD cam : ", str);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
