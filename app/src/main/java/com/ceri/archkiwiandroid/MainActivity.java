@@ -17,15 +17,23 @@ import java.util.TimerTask;
 
 public class MainActivity extends Activity {
 
+    //L'adresse ip wifi du robot
     private final String hostname = "192.168.2.254";
+    //Le port pour obtenir le stream
     private final String portStream = "8080";
+    //Le port pour envoyer les sockets
     private final int portSocket = 20000;
+    //Pour gérer la connexion wifi avec le robot
     private Wifi wifi;
     private boolean running;
+    //Pour afficher le stream vidéo
     private MjpegView mv;
+    //Socket pour lancer les commandes moteur et camera
     private SocketClient socketClient;
     private long lastSpeedRequest;
+    //Pour utiliser la reconaissance vocale
     private VocalRecognizer vocalRecognizer;
+    //Les commandes pour la camera
     public static final int GAUCHE = 0, HAUT = 0;
     public static final int DROITE = 180, BAS = 180;
     public static final int STOP = -1;
@@ -37,7 +45,6 @@ public class MainActivity extends Activity {
 
         // Get WifiManager
         wifi = new Wifi(this);
-
         // Prepare a scheduled timer to check Wifi state periodically
         TimerTask task = new TimerTask() {
             @Override
@@ -78,6 +85,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * Pour utiliser les sockets dans un thread
+     */
     private void start() {
         running = true;
         //Initialisation de la socket
