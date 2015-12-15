@@ -86,6 +86,10 @@ public class MainActivity extends Activity {
             public void run() {
                 try {
                     socketClient = new SocketClient(hostname, portSocket);
+                    if(!socketClient.initSocket())
+                    {
+                        Log.e("Error socket","socket not create");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
