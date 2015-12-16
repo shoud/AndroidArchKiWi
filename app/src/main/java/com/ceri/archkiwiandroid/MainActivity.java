@@ -34,9 +34,13 @@ public class MainActivity extends Activity {
     //Pour utiliser la reconaissance vocale
     private VocalRecognizer vocalRecognizer;
     //Les commandes pour la camera
-    public static final int GAUCHE = 0, HAUT = 0;
-    public static final int DROITE = 180, BAS = 180;
-    public static final int STOP = -1;
+    private static final int MAX_POWER = 100;
+    private static final int MILIEU = 1500;
+    private static final int MAX = 1800;
+    private static final int MIN = 1300;
+    private static final int ECART_DROITE_HAUT = (MAX - MILIEU) / MAX_POWER;
+    private static final int ECART_GAUCHE_BAS = (MILIEU - MIN) / MAX_POWER;
+    private static final int STOP = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,35 +141,35 @@ public class MainActivity extends Activity {
                 //Permet de définir où la camera doit se déplacer en fonction du joytstik
                 switch (direction) {
                     case JoystickView.FRONT:
-                        str = "C;" + STOP + ";" + HAUT + ";";
+                        str = "C;" + STOP + ";" + (MILIEU + ECART_DROITE_HAUT*power) + ";";
                         break;
 
                     case JoystickView.FRONT_RIGHT:
-                        str = "C;" + DROITE + ";" + HAUT + ";";
+                        str = "C;" + (MILIEU + ECART_DROITE_HAUT*power) + ";" + (MILIEU + ECART_DROITE_HAUT*power) + ";";
                         break;
 
                     case JoystickView.RIGHT:
-                        str = "C;" + DROITE + ";" + STOP + ";";
+                        str = "C;" + (MILIEU + ECART_DROITE_HAUT*power) + ";" + STOP + ";";
                         break;
 
                     case JoystickView.RIGHT_BOTTOM:
-                        str = "C;" + DROITE + ";" + BAS + ";";
+                        str = "C;" + (MILIEU + ECART_DROITE_HAUT*power) + ";" + (MILIEU - ECART_GAUCHE_BAS*power) + ";";
                         break;
 
                     case JoystickView.BOTTOM:
-                        str = "C;" + STOP + ";" + BAS + ";";
+                        str = "C;" + STOP + ";" + (MILIEU - ECART_GAUCHE_BAS*power) + ";";
                         break;
 
                     case JoystickView.BOTTOM_LEFT:
-                        str = "C;" + GAUCHE + ";" + BAS + ";";
+                        str = "C;" + (MILIEU - ECART_GAUCHE_BAS*power) + ";" + (MILIEU - ECART_GAUCHE_BAS*power) + ";";
                         break;
 
                     case JoystickView.LEFT:
-                        str = "C;" + GAUCHE + ";" + STOP + ";";
+                        str = "C;" + (MILIEU - ECART_GAUCHE_BAS*power) + ";" + STOP + ";";
                         break;
 
                     case JoystickView.LEFT_FRONT:
-                        str = "C;" + GAUCHE + ";" + HAUT + ";";
+                        str = "C;" + (MILIEU - ECART_GAUCHE_BAS*power) + ";" + (MILIEU + ECART_DROITE_HAUT*power) + ";";
                         break;
 
                     default:
