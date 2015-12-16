@@ -165,7 +165,6 @@ public class MainActivity extends Activity {
                     default:
                         str = "C;" + STOP + ";" + STOP + ";";
                 }
-                Log.e("CMD cam : ", str);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
