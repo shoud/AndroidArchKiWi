@@ -45,8 +45,6 @@
         android:onClick="btVocalRecognizer"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_above="@+id/joystickCamera"
-        android:layout_alignStart="@+id/joystickCamera"
         android:src="@android:drawable/ic_btn_speak_now" />
 
 </RelativeLayout>
