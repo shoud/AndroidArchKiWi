@@ -111,11 +111,15 @@ public class MainActivity extends Activity {
         joystickMotor.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
             @Override
             public void onValueChanged(int angle, int power, int direction) {
+                //Creation de la commande on fonction de l'angle et de la puissance du joystik
                 final String str = "M;" + angle + ";" + power + ";";
+                //Creation d'une Thread pour lancer la commande et récupérer la vitesse
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
+                        //Envoie de la commande
                         socketClient.send(str);
+                        //Mise à jour de la vitesse
                         getSpeed();
                     }
                 }).start();
@@ -128,7 +132,9 @@ public class MainActivity extends Activity {
         joystickCamera.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
             @Override
             public void onValueChanged(int angle, int power, int direction) {
+                //La commande a envoyer
                 final String str;
+                //Permet de définir où la camera doit se déplacer en fonction du joytstik
                 switch (direction) {
                     case JoystickView.FRONT:
                         str = "C;" + STOP + ";" + HAUT + ";";
@@ -165,6 +171,7 @@ public class MainActivity extends Activity {
                     default:
                         str = "C;" + STOP + ";" + STOP + ";";
                 }
+                //Envoie de la commande dans un Thread
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -174,14 +181,18 @@ public class MainActivity extends Activity {
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL);
 
+        //Récupération de la view pour afficher le stream
         mv = (MjpegView) findViewById(R.id.mjpegView);
         mv.setDisplayMode(MjpegView.SIZE_BEST_FIT);
+        //Cacher le nombre d'images par seconde
         mv.showFps(false);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    //Récupération du stream
                     MjpegInputStream stream = MjpegInputStream.read("http://" + hostname + ":" + portStream + "/?action=stream");
+                    //Affichage du stream
                     mv.setSource(stream);
                 } catch (Exception e) {
                     e.printStackTrace();
