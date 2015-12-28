@@ -16,6 +16,7 @@ class SocketClient {
     private BufferedWriter bufferedWriter = null;
     private InputStreamReader inputStreamReader = null;
     private BufferedReader bufferedReader = null;
+    private long lastMsg = 0;
 
     /**
      * Initialise l'adresse ip et le port pour la socket
@@ -58,19 +59,23 @@ class SocketClient {
      * @return La réponse reçu (la vitesse du robot)
      */
     public String send(String command) {
-        try {
+        long now = System.currentTimeMillis();
+        if (now > lastMsg + 50 || command.equals("M;0;0;")) {
+            try {
 
-            bufferedWriter.write(command);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
+                bufferedWriter.write(command);
+                bufferedWriter.newLine();
+                bufferedWriter.flush();
 
-            if (command.equals("E;PLSGIVINFO"))
-            {
-                String str = bufferedReader.readLine();
-                return str;
+                if (command.equals("E;PLSGIVINFO")) {
+                    String str = bufferedReader.readLine();
+                    return str;
+                }
+            } catch (Exception e) {
+                Log.e("Socket", e.toString());
+                initSocket();
             }
-        } catch (Exception e) {
-            Log.e("Socket", e.toString());
+            lastMsg = now;
         }
         return "";
     }
