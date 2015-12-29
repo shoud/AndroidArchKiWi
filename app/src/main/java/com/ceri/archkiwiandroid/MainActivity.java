@@ -35,16 +35,16 @@ public class MainActivity extends Activity {
     private VocalRecognizer vocalRecognizer;
     //Les commandes pour la camera
     private static final int MAX_POWER = 100;
-    private static final int H_CENTER = 1300;
-    private static final int H_RIGHT = 1600;
-    private static final int H_LEFT = 1000;
-    private static final int V_CENTER = 1500;
-    private static final int V_RIGHT = 1100;
-    private static final int V_LEFT = 1900;
+    private static final int H_CENTER = 1400;
+    private static final int H_RIGHT = 1700;
+    private static final int H_LEFT = 1100;
+    private static final int V_CENTER = 1400;
+    private static final int V_BOTTOM = 1000;
+    private static final int V_TOP = 1800;
     private static final int H_RATIO1 = (H_CENTER - H_LEFT) / MAX_POWER;
     private static final int H_RATIO2 = (H_RIGHT - H_CENTER) / MAX_POWER;
-    private static final int V_RATIO1 = (H_CENTER - H_LEFT) / MAX_POWER;
-    private static final int V_RATIO2 = (H_RIGHT - H_CENTER) / MAX_POWER;
+    private static final int V_RATIO1 = (V_CENTER - V_BOTTOM) / MAX_POWER;
+    private static final int V_RATIO2 = (V_TOP - V_CENTER) / MAX_POWER;
     private static final int STOP = -1;
 
     @Override
@@ -143,42 +143,46 @@ public class MainActivity extends Activity {
             public void onValueChanged(int angle, int power, int direction) {
                 //La commande a envoyer
                 final String str;
-                //Permet de définir où la camera doit se déplacer en fonction du joytstik
-                switch (direction) {
-                    case JoystickView.FRONT:
-                        str = "C;" + STOP + ";" + (V_CENTER + V_RATIO1*power) + ";";
-                        break;
+                if (power > 50) {
+                    //Permet de définir où la camera doit se déplacer en fonction du joytstik
+                    switch (direction) {
+                        case JoystickView.FRONT:
+                            str = "C;" + STOP + ";" + (V_CENTER + V_RATIO1 * power) + ";";
+                            break;
 
-                    case JoystickView.FRONT_RIGHT:
-                        str = "C;" + (H_CENTER + H_RATIO1*power) + ";" + (V_CENTER + V_RATIO1*power) + ";";
-                        break;
+                        case JoystickView.FRONT_RIGHT:
+                            str = "C;" + (H_CENTER + H_RATIO1 * power) + ";" + (V_CENTER + V_RATIO1 * power) + ";";
+                            break;
 
-                    case JoystickView.RIGHT:
-                        str = "C;" + (H_CENTER + H_RATIO1*power) + ";" + STOP + ";";
-                        break;
+                        case JoystickView.RIGHT:
+                            str = "C;" + (H_CENTER + H_RATIO1 * power) + ";" + STOP + ";";
+                            break;
 
-                    case JoystickView.RIGHT_BOTTOM:
-                        str = "C;" + (H_CENTER + H_RATIO1*power) + ";" + (V_CENTER - V_RATIO2*power) + ";";
-                        break;
+                        case JoystickView.RIGHT_BOTTOM:
+                            str = "C;" + (H_CENTER + H_RATIO1 * power) + ";" + (V_CENTER - V_RATIO2 * power) + ";";
+                            break;
 
-                    case JoystickView.BOTTOM:
-                        str = "C;" + STOP + ";" + (V_CENTER - V_RATIO2*power) + ";";
-                        break;
+                        case JoystickView.BOTTOM:
+                            str = "C;" + STOP + ";" + (V_CENTER - V_RATIO2 * power) + ";";
+                            break;
 
-                    case JoystickView.BOTTOM_LEFT:
-                        str = "C;" + (H_CENTER - H_RATIO2*power) + ";" + (V_CENTER - V_RATIO2*power) + ";";
-                        break;
+                        case JoystickView.BOTTOM_LEFT:
+                            str = "C;" + (H_CENTER - H_RATIO2 * power) + ";" + (V_CENTER - V_RATIO2 * power) + ";";
+                            break;
 
-                    case JoystickView.LEFT:
-                        str = "C;" + (H_CENTER - H_RATIO2*power) + ";" + STOP + ";";
-                        break;
+                        case JoystickView.LEFT:
+                            str = "C;" + (H_CENTER - H_RATIO2 * power) + ";" + STOP + ";";
+                            break;
 
-                    case JoystickView.LEFT_FRONT:
-                        str = "C;" + (H_CENTER - H_RATIO2*power) + ";" + (V_CENTER + V_RATIO1*power) + ";";
-                        break;
+                        case JoystickView.LEFT_FRONT:
+                            str = "C;" + (H_CENTER - H_RATIO2 * power) + ";" + (V_CENTER + V_RATIO1 * power) + ";";
+                            break;
 
-                    default:
-                        str = "C;" + STOP + ";" + STOP + ";";
+                        default:
+                            str = "C;" + STOP + ";" + STOP + ";";
+                    }
+                } else {
+                    str = "C;" + H_CENTER + ";" + V_CENTER + ";";
                 }
                 //Envoie de la commande dans un Thread
                 new Thread(new Runnable() {
