@@ -1,0 +1,17 @@
+#JSGF V1.0;
+
+grammar commands;
+
+<command> = avance|
+          recule|
+          gauche|
+          droite;
+          
+<distance> = un|
+            dix|
+            cent;
+            
+<unit> = centimètre|
+        mètre;
+
+public <commands> = <command> [de] <distance> <unit>;

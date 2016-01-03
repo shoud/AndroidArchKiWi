@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
             }
         };
         Timer timer = new Timer();
-        timer.schedule(task, 0, 1000); // Check Wifi state every second
+        //timer.schedule(task, 0, 1000); // Check Wifi state every second
         vocalRecognizer = new VocalRecognizer(this);
     }
 
@@ -237,15 +237,9 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode,
-                                    int resultCode,
-                                    Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 0 && resultCode == RESULT_OK) {
-            ArrayList<String> results;
-            results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            Toast.makeText(this, results.get(0), Toast.LENGTH_SHORT).show();
-        }
+    protected void onDestroy() {
+        super.onDestroy();
+        vocalRecognizer.onDestroy();
     }
 
     /**
@@ -254,7 +248,6 @@ public class MainActivity extends Activity {
      */
     public void btVocalRecognizer(View controlView)
     {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        startActivityForResult(intent, 0);
+        vocalRecognizer.listen();
     }
 }

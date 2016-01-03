@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-class SocketClient {
+public class SocketClient {
     private String hostName = null;
     private int portNumber =0;
     private Socket socket = null;

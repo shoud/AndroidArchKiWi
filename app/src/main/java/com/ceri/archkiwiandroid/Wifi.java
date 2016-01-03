@@ -12,7 +12,7 @@ import android.net.wifi.WifiManager;
  * Classe permettant de gérer le WIFi
  * Le wifi est utilisé pour communiquer avec le robot qui possède un hotpost
  */
-class Wifi
+public class Wifi
 {
     //L'activité principale
     private final Activity activity;

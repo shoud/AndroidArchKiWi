@@ -1,132 +1,133 @@
 package com.ceri.archkiwiandroid;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.speech.RecognitionListener;
-import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
+import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
+
+import java.io.File;
+import java.io.IOException;
+
+import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
+import edu.cmu.pocketsphinx.Assets;
+import edu.cmu.pocketsphinx.Hypothesis;
+import edu.cmu.pocketsphinx.RecognitionListener;
+import edu.cmu.pocketsphinx.SpeechRecognizer;
 
-/**
- * Created by thomas on 02/12/2015.
- */
-public class VocalRecognizer
-{
-    private MainActivity mainActivity;
-    private SpeechRecognizer asr = null;
-    private Intent intent = null;
+public class VocalRecognizer implements RecognitionListener {
 
-    public VocalRecognizer(MainActivity mainActivity)
-    {
-        this.mainActivity = mainActivity;
-        asr = SpeechRecognizer.createSpeechRecognizer(mainActivity);
-        asr.setRecognitionListener(new ResSpeech());
-        intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-    }
+    /* Named searches allow to quickly reconfigure the decoder */
+    private static final String COMMANDS = "commandes";
 
-    /**
-     * Permet de lancer un enregistrement vocale
-     */
-    public void enregistrement() {
-        //Lance un enregistrement
-        mainActivity.startActivityForResult(intent, 0);
-    }
+    private SpeechRecognizer recognizer;
+    private MainActivity activity;
 
-    /**
-     * Permet de stopper un enregistrement vocale
-     */
-    public void stopperEnregistrement() {
-        //Permet d'arrêter l'enregistrement
-        asr.stopListening();
-    }
+    public VocalRecognizer(final MainActivity activity) {
+        this.activity = activity;
+        // Recognizer initialization is a time-consuming and it involves IO,
+        // so we execute it in async task
 
-    private class ResSpeech implements RecognitionListener
-    {
-
-        @Override
-        public void onReadyForSpeech(Bundle params){}
-
-        @Override
-        public void onBeginningOfSpeech(){}
-
-        @Override
-        public void onRmsChanged(float rmsdB){}
-
-        @Override
-        public void onBufferReceived(byte[] buffer){}
-
-        @Override
-        public void onEndOfSpeech(){}
-
-        @Override
-        /**
-         * Méthode peremettant de signigier une érreure dans les logs
-         * si il y a eu un problème avec google speech
-         */
-        public void onError(int erreur)
-        {
-            //Le message a ecrire dans le log
-            String message;
-            switch (erreur)
-            {
-                case SpeechRecognizer.ERROR_AUDIO:
-                    message = "Audio enregistrement erreur.";
-                    break;
-                case SpeechRecognizer.ERROR_CLIENT:
-                    message = "Erreur client.";
-                    break;
-                case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS:
-                    message = "Permissions insuffisantes";
-                    break;
-                case SpeechRecognizer.ERROR_NETWORK:
-                    message = "Erreur de réseau.";
-                    break;
-                case SpeechRecognizer.ERROR_NETWORK_TIMEOUT:
-                    message = "Temps réseau dépassé.";
-                    break;
-                case SpeechRecognizer.ERROR_NO_MATCH:
-                    message = "Pas de résultat.";
-                    break;
-                case SpeechRecognizer.ERROR_RECOGNIZER_BUSY:
-                    message = "Le service est surchargé.";
-                    break;
-                case SpeechRecognizer.ERROR_SERVER:
-                    message = "Erreur du serveur";
-                    break;
-                case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
-                    message = "Pas de son enregistré";
-                    break;
-                default:
-                    message = "Erreur inconnu";
+        Log.i("VocalRecPrep", "Preparing recognizer...");
+        new AsyncTask<Void, Void, Exception>() {
+            @Override
+            protected Exception doInBackground(Void... params) {
+                try {
+                    Assets assets = new Assets(activity);
+                    File assetDir = assets.syncAssets();
+                    setupRecognizer(assetDir);
+                } catch (IOException e) {
+                    return e;
+                }
+                return null;
             }
-            Log.e("SpeechRecognizer", message);
-        }
 
-        @Override
-        /**
-         * La méthode qui reçoit le résulat de speech
-         */
-        public void onResults(Bundle results) {
-            //la liste des résulats possible, en 0 le plus possible vers le moins possible
-            List<String> tmp = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-            //On garde la possibilité la plus sûr
-            String phrase = tmp.get(0);
-            //Faire le traitement
-            Log.e("Phrase trouvée ", phrase);
+            @Override
+            protected void onPostExecute(Exception result) {
+                if (result != null)
+                    Log.e("VocalRecPrep", "Error while preparing recognizer: " + result);
+                else
+                    Log.i("VocalRecPrep", "Recognizer ready!");
+            }
+        }.execute();
+    }
 
-        }
+    public void listen() {
+        recognizer.startListening(COMMANDS);
+    }
 
-        @Override
-        public void onPartialResults(Bundle partialResults) {
-        }
+    public void onDestroy() {
+        recognizer.cancel();
+        recognizer.shutdown();
+    }
 
-        @Override
-        public void onEvent(int eventType, Bundle params) {
+    /**
+     * In partial result we get quick updates about current hypothesis. In
+     * keyword spotting mode we can react here, in other modes we need to wait
+     * for final result in onResult.
+     */
+    @Override
+    public void onPartialResult(Hypothesis hypothesis) {
+        if (hypothesis == null)
+            return;
+
+        String text = hypothesis.getHypstr();
+        Log.d("VocalRecPartRes", text);
+    }
+
+    /**
+     * This callback is called when we stop the recognizer.
+     */
+    @Override
+    public void onResult(Hypothesis hypothesis) {
+        if (hypothesis != null) {
+            String text = hypothesis.getHypstr();
+            Log.i("VocalRecRes", text);
         }
+    }
+
+    @Override
+    public void onBeginningOfSpeech() {
+    }
+
+    /**
+     * We stop recognizer here to get a final result
+     */
+    @Override
+    public void onEndOfSpeech() {
+        recognizer.stop();
+    }
+
+    private void setupRecognizer(File assetsDir) throws IOException {
+        // The recognizer can be configured to perform multiple searches
+        // of different kind and switch between them
+
+        recognizer = defaultSetup()
+                .setAcousticModel(new File(assetsDir, "fr-ptm"))
+                .setDictionary(new File(assetsDir, "fr.dict"))
+
+                // To disable logging of raw audio comment out this call (takes a lot of space on the device)
+                .setRawLogDir(assetsDir)
+
+                // Threshold to tune for keyphrase to balance between false alarms and misses
+                .setKeywordThreshold(1e-45f)
+
+                // Use context-independent phonetic search, context-dependent is too slow for mobile
+                .setBoolean("-allphone_ci", true)
+
+                .getRecognizer();
+        recognizer.addListener(this);
+
+        // Create grammar-based search for selection between demos
+        File menuGrammar = new File(assetsDir, "commands.gram");
+        recognizer.addGrammarSearch(COMMANDS, menuGrammar);
+    }
+
+    @Override
+    public void onError(Exception error) {
+        Log.e("VocalRecErr", error.toString());
+    }
+
+    @Override
+    public void onTimeout() {
+        recognizer.startListening(COMMANDS);
     }
 }
