@@ -35,9 +35,9 @@ public class MainActivity extends Activity {
     private VocalRecognizer vocalRecognizer;
     //Les commandes pour la camera
     private static final int MAX_POWER = 100;
-    private static final int H_CENTER = 1400;
-    private static final int H_RIGHT = 1700;
-    private static final int H_LEFT = 1100;
+    private static final int H_CENTER = 1450;
+    private static final int H_RIGHT = 1750;
+    private static final int H_LEFT = 1150;
     private static final int V_CENTER = 1400;
     private static final int V_BOTTOM = 1000;
     private static final int V_TOP = 1800;
@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
             }
         };
         Timer timer = new Timer();
-        //timer.schedule(task, 0, 1000); // Check Wifi state every second
+        timer.schedule(task, 0, 1000); // Check Wifi state every second
         vocalRecognizer = new VocalRecognizer(this);
     }
 
@@ -181,8 +181,10 @@ public class MainActivity extends Activity {
                         default:
                             str = "C;" + STOP + ";" + STOP + ";";
                     }
-                } else {
+                } else if (power > 0) {
                     str = "C;" + H_CENTER + ";" + V_CENTER + ";";
+                } else {
+                    str = "C;" + STOP + ";" + STOP + ";";
                 }
                 //Envoie de la commande dans un Thread
                 new Thread(new Runnable() {
