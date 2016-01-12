@@ -17,6 +17,7 @@ public class SocketClient {
     private InputStreamReader inputStreamReader = null;
     private BufferedReader bufferedReader = null;
     private long lastMsg = 0;
+    private boolean sending = false;
 
     /**
      * Initialise l'adresse ip et le port pour la socket
@@ -62,7 +63,6 @@ public class SocketClient {
         long now = System.currentTimeMillis();
         if (now > lastMsg + 50 || command.equals("M;0;0;")) {
             try {
-
                 bufferedWriter.write(command);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
@@ -78,6 +78,27 @@ public class SocketClient {
             lastMsg = now;
         }
         return "";
+    }
+
+    public void send(final String command, final int duration) {
+        if (!sending) {
+            sending = true;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    long now = System.currentTimeMillis();
+                    /*
+                    On pourrait envoyer la commande une seule fois mais
+                    le trigger du télémètre se fait à la réception d'une commande
+                    Donc pour check à chaque instant s'il y a un obstacle, il faut spammer
+                     */
+                    while (now > System.currentTimeMillis() - duration)
+                        send(command);
+                    send("M;0;0;"); // On coupe les moteurs une fois l'action terminée
+                    sending = false;
+                }
+            }).start();
+        }
     }
 
     /**

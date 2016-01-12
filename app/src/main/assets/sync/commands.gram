@@ -2,16 +2,12 @@
 
 grammar commands;
 
-<command> = avance|
-          recule|
-          gauche|
-          droite;
-          
-<distance> = un|
-            dix|
-            cent;
-            
-<unit> = centimètre|
-        mètre;
+<action> = avance | va | recule | fonce | demi-tour;
 
-public <commands> = <command> [de] <distance> <unit>;
+<speed> = lentement | rapidement;
+
+<direction> = vers la (gauche | droite);
+
+<time> = pendant (une | deux | trois) secondes;
+
+public <command> = <action> [ <speed> ] [ <direction> ] [ <time> ];

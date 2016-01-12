@@ -75,7 +75,6 @@ public class MainActivity extends Activity {
         };
         Timer timer = new Timer();
         timer.schedule(task, 0, 1000); // Check Wifi state every second
-        vocalRecognizer = new VocalRecognizer(this);
     }
 
     private void getSpeed() {
@@ -105,6 +104,7 @@ public class MainActivity extends Activity {
             public void run() {
                 try {
                     socketClient = new SocketClient(hostname, portSocket);
+                    vocalRecognizer = new VocalRecognizer(MainActivity.this, socketClient);
                     if(!socketClient.initSocket())
                     {
                         Log.e("Error socket","socket not create");

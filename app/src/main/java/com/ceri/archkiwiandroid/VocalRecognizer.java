@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import edu.cmu.pocketsphinx.Assets;
 import edu.cmu.pocketsphinx.Hypothesis;
@@ -19,13 +20,13 @@ public class VocalRecognizer implements RecognitionListener {
     private static final String COMMANDS = "commandes";
 
     private SpeechRecognizer recognizer;
-    private MainActivity activity;
+    private SocketClient socketClient;
 
-    public VocalRecognizer(final MainActivity activity) {
-        this.activity = activity;
+    public VocalRecognizer(final MainActivity activity, SocketClient socketClient) {
+        this.socketClient = socketClient;
+
         // Recognizer initialization is a time-consuming and it involves IO,
         // so we execute it in async task
-
         Log.i("VocalRecPrep", "Preparing recognizer...");
         new AsyncTask<Void, Void, Exception>() {
             @Override
@@ -51,7 +52,7 @@ public class VocalRecognizer implements RecognitionListener {
     }
 
     public void listen() {
-        recognizer.startListening(COMMANDS);
+        recognizer.startListening(COMMANDS, 2000);
     }
 
     public void onDestroy() {
@@ -81,7 +82,52 @@ public class VocalRecognizer implements RecognitionListener {
         if (hypothesis != null) {
             String text = hypothesis.getHypstr();
             Log.i("VocalRecRes", text);
+            parse(text);
         }
+    }
+
+    private void parse(String text) {
+        int angle = 0, power = 50, duration = 1000;
+
+        if (text.contains("recule"))
+            angle = 180;
+        if (text.contains("fonce"))
+            power = 80;
+
+        if (text.contains("vers la gauche")) {
+            if (angle == 0)
+                angle = -60;
+            else
+                angle = -120;
+        } else if (text.contains("vers la droite")) {
+            if (angle == 0)
+                angle = 60;
+            else
+                angle = 120;
+        }
+
+        if (text.contains("demi-tour")) {
+            angle = -90;
+            power = 60;
+            duration = 1400;
+            if (text.contains("rapidement"))
+                duration = 1000;
+            if (text.contains("lentement"))
+                duration = 2700;
+        }
+        if (text.contains("rapidement")) {
+            power += 20;
+        } else if (text.contains("lentement")) {
+            power -= 20;
+        }
+
+        if (text.contains("pendant deux secondes"))
+            duration = 2000;
+        else if (text.contains("pendant trois secondes"))
+            duration = 3000;
+
+        if (socketClient != null)
+            socketClient.send("M;" + angle + ";" + power + ";", duration);
     }
 
     @Override
@@ -105,7 +151,7 @@ public class VocalRecognizer implements RecognitionListener {
                 .setDictionary(new File(assetsDir, "fr.dict"))
 
                 // To disable logging of raw audio comment out this call (takes a lot of space on the device)
-                .setRawLogDir(assetsDir)
+                //.setRawLogDir(assetsDir)
 
                 // Threshold to tune for keyphrase to balance between false alarms and misses
                 .setKeywordThreshold(1e-45f)
